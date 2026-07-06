@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Problem–Solution Vocabulary Builder | IELTS Task 2</title>
+<style>
+:root{
+  --teal:#0E4D5C; --teal-dark:#0A3742; --teal-light:#E8F2F1;
+  --gold:#E9B44C; --gold-dark:#C8942F;
+  --coral:#D95F4B; --coral-bg:#FCEDE9;
+  --green:#2E8B57; --green-bg:#E9F5EE;
+  --purple:#6B5B95; --purple-bg:#F0EDF7;
+  --blue:#3A6EA5; --blue-bg:#EAF1F8;
+  --ink:#25333A; --muted:#5D7078; --bg:#F2F6F5; --card:#FFFFFF;
+  --radius:14px; --shadow:0 3px 12px rgba(14,77,92,.10);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+.arabic{font-family:'Segoe UI',Tahoma,Arial,sans-serif;direction:rtl;unicode-bidi:embed}
+
+/* ---------- Header ---------- */
+header{background:linear-gradient(135deg,var(--teal-dark),var(--teal));color:#fff;padding:26px 16px 20px;text-align:center;position:relative;overflow:hidden}
+header::after{content:"";position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:50%;background:rgba(233,180,76,.14)}
+header h1{font-family:Georgia,'Times New Roman',serif;font-size:1.7rem;letter-spacing:.3px}
+header h1 .hl{color:var(--gold)}
+header p{opacity:.9;font-size:.92rem;margin-top:6px}
+.scorebar{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:14px;position:relative;z-index:1}
+.chip{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:6px 14px;font-size:.85rem;font-weight:600}
+.chip .num{color:var(--gold)}
+
+/* Problem → Solution bridge */
+.bridge{max-width:760px;margin:16px auto 0;position:relative;z-index:1;padding:0 10px}
+.bridge-labels{display:flex;justify-content:space-between;font-size:.75rem;font-weight:700;letter-spacing:.5px;margin-bottom:4px}
+.bridge-labels .p{color:#F5B8AC}.bridge-labels .s{color:#A8E6C3}
+.bridge-track{height:12px;border-radius:999px;background:linear-gradient(90deg,rgba(217,95,75,.45),rgba(46,139,87,.45));position:relative;border:1px solid rgba(255,255,255,.3)}
+.bridge-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--coral),var(--gold),var(--green));width:0%;transition:width .6s ease}
+.bridge-walker{position:absolute;top:-9px;left:0;font-size:1.15rem;transition:left .6s ease;transform:translateX(-50%)}
+
+/* ---------- Tabs ---------- */
+.tabs{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;padding:16px 10px;max-width:900px;margin:0 auto}
+.tab{border:2px solid var(--teal);background:#fff;color:var(--teal);border-radius:999px;padding:9px 18px;font-size:.92rem;font-weight:700;cursor:pointer;transition:.2s}
+.tab:hover{background:var(--teal-light)}
+.tab.active{background:var(--teal);color:#fff;box-shadow:var(--shadow)}
+main{max-width:960px;margin:0 auto;padding:6px 14px 40px}
+.panel{display:none;animation:fadeIn .35s ease}
+.panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+h2.section-title{font-family:Georgia,serif;color:var(--teal);font-size:1.35rem;margin:12px 0 4px;text-align:center}
+p.section-sub{text-align:center;color:var(--muted);font-size:.92rem;margin-bottom:16px}
+
+/* ---------- Category pills (Learn) ---------- */
+.cat-row{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.cat-pill{border-radius:999px;padding:7px 14px;font-size:.83rem;font-weight:700;cursor:pointer;border:2px solid transparent;transition:.2s}
+.cat-pill[data-cat="problems"]{background:var(--coral-bg);color:var(--coral)}
+.cat-pill[data-cat="causes"]{background:var(--purple-bg);color:var(--purple)}
+.cat-pill[data-cat="solutions"]{background:var(--green-bg);color:var(--green)}
+.cat-pill[data-cat="results"]{background:var(--blue-bg);color:var(--blue)}
+.cat-pill[data-cat="people"]{background:#FBF3E2;color:var(--gold-dark)}
+.cat-pill.active{border-color:currentColor;transform:scale(1.05)}
+
+/* ---------- Flashcards ---------- */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.fcard{perspective:1000px;height:230px;cursor:pointer}
+.fcard-inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+.fcard.flipped .fcard-inner{transform:rotateY(180deg)}
+.fface{position:absolute;inset:0;backface-visibility:hidden;border-radius:var(--radius);box-shadow:var(--shadow);display:flex;flex-direction:column;justify-content:center;align-items:center;padding:16px;text-align:center;background:var(--card)}
+.fface.front{border-top:6px solid var(--teal)}
+.fface.front .word{font-family:Georgia,serif;font-size:1.5rem;color:var(--teal);font-weight:700}
+.fface.front .pos{font-size:.78rem;color:var(--muted);font-style:italic;margin-top:4px}
+.fface.front .tap{margin-top:14px;font-size:.75rem;color:var(--muted)}
+.fface.back{transform:rotateY(180deg);justify-content:flex-start;padding-top:14px;overflow-y:auto}
+.fface.back .ar{font-size:1.25rem;font-weight:700;margin-bottom:6px}
+.fface.back .def{font-size:.85rem;color:var(--ink);margin-bottom:8px}
+.fface.back .ex{font-size:.8rem;color:var(--muted);font-style:italic;background:var(--bg);border-radius:8px;padding:8px}
+.fface.back .ex b{color:var(--teal);font-style:normal}
+.cat-problems .fface.front{border-top-color:var(--coral)}.cat-problems .fface.front .word{color:var(--coral)}.cat-problems .fface.back .ar{color:var(--coral)}
+.cat-causes .fface.front{border-top-color:var(--purple)}.cat-causes .fface.front .word{color:var(--purple)}.cat-causes .fface.back .ar{color:var(--purple)}
+.cat-solutions .fface.front{border-top-color:var(--green)}.cat-solutions .fface.front .word{color:var(--green)}.cat-solutions .fface.back .ar{color:var(--green)}
+.cat-results .fface.front{border-top-color:var(--blue)}.cat-results .fface.front .word{color:var(--blue)}.cat-results .fface.back .ar{color:var(--blue)}
+.cat-people .fface.front{border-top-color:var(--gold-dark)}.cat-people .fface.front .word{color:var(--gold-dark)}.cat-people .fface.back .ar{color:var(--gold-dark)}
+.fcard.learned .fface.front::after{content:"✓ Learned";position:absolute;top:8px;right:8px;background:var(--green);color:#fff;font-size:.65rem;font-weight:700;border-radius:999px;padding:2px 8px}
+
+/* ---------- Structures ---------- */
+.struct-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:16px;border-left:6px solid var(--gold)}
+.struct-card h3{color:var(--teal);font-size:1.05rem;margin-bottom:6px}
+.struct-pattern{background:var(--teal-light);border-radius:10px;padding:10px 14px;font-weight:700;color:var(--teal-dark);margin:8px 0;font-size:.95rem}
+.struct-card .why{font-size:.85rem;color:var(--muted);margin-bottom:8px}
+.struct-ex{font-size:.88rem;padding:6px 0 6px 14px;border-left:3px solid var(--gold);margin:6px 0;color:var(--ink)}
+.struct-ex b{color:var(--green)}
+.struct-ex .prob{color:var(--coral);font-weight:700}
+.struct-tip{background:#FBF3E2;border-radius:10px;padding:10px 14px;font-size:.83rem;margin-top:8px}
+.struct-tip .arabic{font-weight:700}
+
+/* ---------- Practice ---------- */
+.mode-row{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.mode-btn{border:2px solid var(--teal);background:#fff;color:var(--teal);border-radius:12px;padding:10px 18px;font-weight:700;cursor:pointer;font-size:.9rem}
+.mode-btn.active{background:var(--teal);color:#fff}
+.practice-box{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;max-width:640px;margin:0 auto}
+.match-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.match-item{border:2px solid var(--teal-light);border-radius:10px;padding:12px;text-align:center;cursor:pointer;font-weight:600;background:#fff;transition:.15s;font-size:.92rem}
+.match-item:hover{border-color:var(--teal)}
+.match-item.selected{border-color:var(--gold);background:#FBF3E2}
+.match-item.matched{border-color:var(--green);background:var(--green-bg);color:var(--green);cursor:default}
+.match-item.wrong{border-color:var(--coral);background:var(--coral-bg);animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.gap-sentence{font-size:1.05rem;line-height:1.7;background:var(--teal-light);border-radius:10px;padding:16px;margin-bottom:14px}
+.gap-blank{display:inline-block;min-width:110px;border-bottom:3px solid var(--gold);text-align:center;font-weight:700;color:var(--teal)}
+.option-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.opt-btn{border:2px solid var(--teal-light);background:#fff;border-radius:10px;padding:10px 16px;font-weight:600;cursor:pointer;font-size:.92rem;transition:.15s}
+.opt-btn:hover{border-color:var(--teal)}
+.opt-btn.correct{border-color:var(--green);background:var(--green-bg);color:var(--green)}
+.opt-btn.incorrect{border-color:var(--coral);background:var(--coral-bg);color:var(--coral)}
+.feedback{text-align:center;margin-top:12px;font-weight:700;min-height:24px;font-size:.92rem}
+.feedback.good{color:var(--green)}.feedback.bad{color:var(--coral)}
+.progress-line{text-align:center;color:var(--muted);font-size:.85rem;margin-bottom:10px}
+.next-btn,.big-btn{display:block;margin:16px auto 0;background:var(--gold);color:var(--teal-dark);border:none;border-radius:999px;padding:11px 28px;font-weight:800;font-size:.95rem;cursor:pointer;box-shadow:var(--shadow)}
+.next-btn:hover,.big-btn:hover{background:var(--gold-dark);color:#fff}
+
+/* ---------- Quiz ---------- */
+.quiz-q{font-size:1.05rem;line-height:1.7;margin-bottom:16px}
+.quiz-q .blank{border-bottom:3px solid var(--gold);padding:0 18px;font-weight:700;color:var(--teal)}
+.quiz-opts{display:grid;gap:10px}
+.quiz-opt{border:2px solid var(--teal-light);border-radius:10px;padding:12px 16px;cursor:pointer;font-weight:600;background:#fff;text-align:left;font-size:.95rem;transition:.15s}
+.quiz-opt:hover{border-color:var(--teal)}
+.quiz-opt.correct{border-color:var(--green);background:var(--green-bg)}
+.quiz-opt.incorrect{border-color:var(--coral);background:var(--coral-bg)}
+.result-box{text-align:center;padding:20px}
+.result-score{font-family:Georgia,serif;font-size:3rem;font-weight:700;color:var(--teal)}
+.badge-row{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin:14px 0}
+.badge{background:var(--card);border-radius:12px;box-shadow:var(--shadow);padding:12px 16px;text-align:center;width:130px;opacity:.35;transition:.3s}
+.badge.earned{opacity:1;transform:scale(1.03);border:2px solid var(--gold)}
+.badge .icon{font-size:1.7rem}
+.badge .name{font-size:.75rem;font-weight:700;margin-top:4px;color:var(--teal)}
+
+/* ---------- Certificate ---------- */
+.certificate{background:#fff;border:10px double var(--gold);border-radius:8px;max-width:640px;margin:20px auto;padding:36px 30px;text-align:center;box-shadow:var(--shadow)}
+.certificate h3{font-family:Georgia,serif;color:var(--teal);font-size:1.7rem;letter-spacing:1px}
+.certificate .cname{font-family:Georgia,serif;font-size:1.5rem;color:var(--gold-dark);margin:12px 0;border-bottom:2px solid var(--gold);display:inline-block;padding:0 24px 4px}
+.certificate p{color:var(--muted);font-size:.92rem;margin:6px 0}
+.certificate .cred{margin-top:16px;font-size:.8rem;color:var(--teal);font-weight:700}
+
+/* ---------- Progress panel ---------- */
+.save-box{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;max-width:560px;margin:0 auto;text-align:center}
+.save-box input[type=text]{width:100%;max-width:320px;padding:10px 14px;border:2px solid var(--teal-light);border-radius:10px;font-size:.95rem;margin:10px 0}
+.save-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin:18px 0}
+.stat{background:var(--teal-light);border-radius:12px;padding:14px}
+.stat .v{font-size:1.5rem;font-weight:800;color:var(--teal)}
+.stat .l{font-size:.75rem;color:var(--muted);font-weight:600}
+
+/* ---------- Confetti + footer ---------- */
+.confetti{position:fixed;width:10px;height:10px;top:-20px;z-index:999;pointer-events:none}
+footer{text-align:center;padding:20px;color:var(--muted);font-size:.83rem;border-top:1px solid #E2E9E8;margin-top:20px}
+footer b{color:var(--teal)}
+@media(max-width:600px){
+  header h1{font-size:1.3rem}
+  .match-grid{grid-template-columns:1fr 1fr}
+  .fcard{height:240px}
+}
+@media print{
+  header,.tabs,.save-box,footer,.next-btn,.big-btn,.badge-row{display:none!important}
+  .certificate{border:10px double #C8942F;box-shadow:none}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🧩 Problem–Solution <span class="hl">Vocabulary Builder</span></h1>
+  <p>IELTS Academic Writing Task 2 · Band 6 Target · 32 essential words + 6 sentence structures</p>
+  <div class="scorebar">
+    <div class="chip">⭐ Points: <span class="num" id="pointsChip">0</span></div>
+    <div class="chip">📖 Words learned: <span class="num" id="learnedChip">0</span>/32</div>
+    <div class="chip">🏅 Badges: <span class="num" id="badgeChip">0</span>/4</div>
+  </div>
+  <div class="bridge">
+    <div class="bridge-labels"><span class="p">PROBLEM ⚠️</span><span class="s">✅ SOLUTION</span></div>
+    <div class="bridge-track">
+      <div class="bridge-fill" id="bridgeFill"></div>
+      <div class="bridge-walker" id="bridgeWalker">🚶</div>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button class="tab active" data-panel="learn">📚 Learn Words</button>
+  <button class="tab" data-panel="structures">🧱 Sentence Structures</button>
+  <button class="tab" data-panel="practice">🎯 Practice</button>
+  <button class="tab" data-panel="quiz">🏆 Final Quiz</button>
+  <button class="tab" data-panel="progress">💾 My Progress</button>
+</nav>
+
+<main>
+  <!-- LEARN -->
+  <section class="panel active" id="panel-learn">
+    <h2 class="section-title">Learn the Words</h2>
+    <p class="section-sub">Tap a card to flip it and see the Arabic meaning, definition, and an example sentence. Every new card you flip = ⭐ 5 points.</p>
+    <div class="cat-row" id="catRow">
+      <button class="cat-pill active" data-cat="all" style="background:var(--teal-light);color:var(--teal)">All (32)</button>
+      <button class="cat-pill" data-cat="problems">⚠️ Problems (7)</button>
+      <button class="cat-pill" data-cat="causes">🔗 Causes (6)</button>
+      <button class="cat-pill" data-cat="solutions">✅ Solutions (8)</button>
+      <button class="cat-pill" data-cat="results">📊 Results (5)</button>
+      <button class="cat-pill" data-cat="people">👥 People & Actions (6)</button>
+    </div>
+    <div class="cards-grid" id="cardsGrid"></div>
+  </section>
+
+  <!-- STRUCTURES -->
+  <section class="panel" id="panel-structures">
+    <h2 class="section-title">Sentence Structures for Your Essay</h2>
+    <p class="section-sub">Use these patterns to write clear problem–solution sentences. Read each one, then test yourself in Practice.</p>
+    <div id="structList"></div>
+  </section>
+
+  <!-- PRACTICE -->
+  <section class="panel" id="panel-practice">
+    <h2 class="section-title">Practice Zone</h2>
+    <p class="section-sub">Choose an activity. Each correct answer = ⭐ 10 points.</p>
+    <div class="mode-row">
+      <button class="mode-btn active" data-mode="match">🔄 Match: Word ↔ Arabic</button>
+      <button class="mode-btn" data-mode="gap">✍️ Fill the Gap</button>
+      <button class="mode-btn" data-mode="build">🧱 Choose the Structure</button>
+    </div>
+    <div class="practice-box" id="practiceBox"></div>
+  </section>
+
+  <!-- QUIZ -->
+  <section class="panel" id="panel-quiz">
+    <h2 class="section-title">Final Quiz</h2>
+    <p class="section-sub">20 questions · Pass mark 80% (16/20) to earn your certificate 🎓</p>
+    <div class="practice-box" id="quizBox"></div>
+  </section>
+
+  <!-- PROGRESS -->
+  <section class="panel" id="panel-progress">
+    <h2 class="section-title">My Progress</h2>
+    <p class="section-sub">Save your progress as a file, and load it next time you open the app.</p>
+    <div class="save-box">
+      <label for="studentName"><b>Your name (for the certificate):</b></label><br>
+      <input type="text" id="studentName" placeholder="Write your full name here">
+      <div class="stat-grid">
+        <div class="stat"><div class="v" id="statPoints">0</div><div class="l">POINTS</div></div>
+        <div class="stat"><div class="v" id="statLearned">0/32</div><div class="l">WORDS LEARNED</div></div>
+        <div class="stat"><div class="v" id="statQuiz">—</div><div class="l">BEST QUIZ SCORE</div></div>
+        <div class="stat"><div class="v" id="statBadges">0/4</div><div class="l">BADGES</div></div>
+      </div>
+      <div class="badge-row" id="badgeRow"></div>
+      <div class="save-row">
+        <button class="big-btn" onclick="saveProgress()">💾 Save Progress (JSON)</button>
+        <button class="big-btn" style="background:var(--teal);color:#fff" onclick="document.getElementById('loadFile').click()">📂 Load Progress</button>
+        <input type="file" id="loadFile" accept=".json" style="display:none" onchange="loadProgress(event)">
+      </div>
+    </div>
+    <div id="certArea"></div>
+  </section>
+</main>
+
+<footer>Problem–Solution Vocabulary Builder · IELTS Academic Writing Task 2<br><b>Designed by: Nazila Motahari</b></footer>
+<script>
+/* ================= DATA ================= */
+const WORDS=[
+// PROBLEMS (7)
+{w:"issue",pos:"noun",cat:"problems",ar:"قضية / مشكلة",def:"an important problem that people are discussing",ex:"Traffic congestion is a serious <b>issue</b> in many large cities."},
+{w:"challenge",pos:"noun",cat:"problems",ar:"تحدٍّ",def:"a difficult problem that needs effort to solve",ex:"Unemployment is a major <b>challenge</b> for young people today."},
+{w:"crisis",pos:"noun",cat:"problems",ar:"أزمة",def:"a very serious and dangerous situation",ex:"Many countries are facing a water <b>crisis</b>."},
+{w:"widespread",pos:"adjective",cat:"problems",ar:"واسع الانتشار",def:"happening in many places or among many people",ex:"Obesity has become a <b>widespread</b> problem among teenagers."},
+{w:"serious",pos:"adjective",cat:"problems",ar:"خطير / جِدّي",def:"very bad or dangerous; needing attention",ex:"Air pollution has a <b>serious</b> effect on people's health."},
+{w:"alarming",pos:"adjective",cat:"problems",ar:"مُقلق / مثير للقلق",def:"worrying; making people feel afraid",ex:"The number of road accidents is increasing at an <b>alarming</b> rate."},
+{w:"harmful",pos:"adjective",cat:"problems",ar:"ضارّ / مؤذٍ",def:"causing damage to people or things",ex:"Spending too much time online can be <b>harmful</b> to students."},
+// CAUSES (6)
+{w:"cause",pos:"verb / noun",cat:"causes",ar:"يُسبِّب / سبب",def:"to make something happen; the reason for something",ex:"Fast food <b>causes</b> many health problems."},
+{w:"lead to",pos:"phrasal verb",cat:"causes",ar:"يؤدي إلى",def:"to result in; to make something happen",ex:"A lack of exercise can <b>lead to</b> obesity."},
+{w:"result in",pos:"phrasal verb",cat:"causes",ar:"ينتج عنه",def:"to cause a particular situation to happen",ex:"Heavy traffic <b>results in</b> air pollution."},
+{w:"due to",pos:"preposition",cat:"causes",ar:"بسبب",def:"because of something",ex:"Many accidents happen <b>due to</b> careless driving."},
+{w:"factor",pos:"noun",cat:"causes",ar:"عامل",def:"one of the things that causes a situation",ex:"Stress is an important <b>factor</b> in many health problems."},
+{w:"lack of",pos:"noun phrase",cat:"causes",ar:"نقص في / قلة",def:"not having enough of something",ex:"A <b>lack of</b> parking spaces is a common problem in city centres."},
+// SOLUTIONS (8)
+{w:"solution",pos:"noun",cat:"solutions",ar:"حلّ",def:"a way of solving a problem",ex:"One <b>solution</b> is to improve public transport."},
+{w:"solve",pos:"verb",cat:"solutions",ar:"يحلّ",def:"to find an answer to a problem",ex:"Governments must work together to <b>solve</b> this problem."},
+{w:"tackle",pos:"verb",cat:"solutions",ar:"يعالج / يتصدّى لـ",def:"to deal with a difficult problem",ex:"Schools should <b>tackle</b> bullying quickly."},
+{w:"address",pos:"verb",cat:"solutions",ar:"يعالج / يتناول",def:"to give attention to a problem and try to fix it",ex:"The government needs to <b>address</b> the housing shortage."},
+{w:"reduce",pos:"verb",cat:"solutions",ar:"يُقلِّل",def:"to make something smaller or less",ex:"Cycling to work can <b>reduce</b> traffic in the city."},
+{w:"prevent",pos:"verb",cat:"solutions",ar:"يمنع",def:"to stop something from happening",ex:"Seat belts <b>prevent</b> many serious injuries."},
+{w:"improve",pos:"verb",cat:"solutions",ar:"يُحسِّن",def:"to make something better",ex:"Better bus services would <b>improve</b> life in the city."},
+{w:"raise awareness",pos:"verb phrase",cat:"solutions",ar:"ينشر الوعي",def:"to help people know and understand a problem",ex:"Schools can <b>raise awareness</b> about healthy eating."},
+// RESULTS (5)
+{w:"effect",pos:"noun",cat:"results",ar:"تأثير",def:"a change that happens because of something",ex:"Pollution has a negative <b>effect</b> on the environment."},
+{w:"impact",pos:"noun",cat:"results",ar:"أثر / تأثير قوي",def:"a strong effect on someone or something",ex:"Social media has a big <b>impact</b> on young people."},
+{w:"consequence",pos:"noun",cat:"results",ar:"نتيجة / عاقبة",def:"a result of an action, often bad",ex:"One <b>consequence</b> of overfishing is the loss of sea life."},
+{w:"benefit",pos:"noun / verb",cat:"results",ar:"فائدة / يستفيد",def:"a good result; to get something good",ex:"One <b>benefit</b> of recycling is a cleaner environment."},
+{w:"effective",pos:"adjective",cat:"results",ar:"فعّال",def:"working well and producing the result you want",ex:"Higher fines are an <b>effective</b> way to stop dangerous driving."},
+// PEOPLE & ACTIONS (6)
+{w:"government",pos:"noun",cat:"people",ar:"حكومة",def:"the group of people who control a country",ex:"The <b>government</b> should build more affordable homes."},
+{w:"individuals",pos:"noun",cat:"people",ar:"أفراد",def:"single people, not groups or governments",ex:"<b>Individuals</b> can help by using less plastic."},
+{w:"society",pos:"noun",cat:"people",ar:"مجتمع",def:"all the people who live together in a country",ex:"Crime affects everyone in <b>society</b>."},
+{w:"authorities",pos:"noun",cat:"people",ar:"سلطات",def:"official organisations with power, like the police",ex:"The <b>authorities</b> should check food quality in restaurants."},
+{w:"ban",pos:"verb / noun",cat:"people",ar:"يحظر / حظر",def:"to say officially that something is not allowed",ex:"Many cities <b>ban</b> smoking in public places."},
+{w:"encourage",pos:"verb",cat:"people",ar:"يشجِّع",def:"to help or support someone to do something",ex:"Schools should <b>encourage</b> students to read every day."}
+];
+
+const STRUCTURES=[
+{title:"1. Modal Verbs for Solutions: should / must / could",
+ pattern:"Subject + should / must / could + verb (base form)",
+ why:"Modal verbs are the most important grammar for giving solutions. <b>Should</b> = a good idea (recommendation). <b>Must</b> = very strong and necessary. <b>Could</b> = one possible option.",
+ exs:["Governments <b>should invest</b> in public transport.","People <b>must stop</b> throwing rubbish in the sea.","Schools <b>could offer</b> free sports classes after class."],
+ tip:"⭐ Remember: after should / must / could, the verb never changes. Say \"should <b>build</b>\" ✔ — not \"should builds\" ✘ or \"should to build\" ✘. <span class='arabic'>بعد الأفعال الناقصة، يبقى الفعل في صيغته الأساسية دائماً</span>"},
+{title:"2. One solution is + to (verb)",
+ pattern:"One solution is + to + verb  /  Another solution is + to + verb",
+ why:"A clear, simple way to introduce your solutions one by one in Body Paragraph 2.",
+ exs:["<b>One solution is to raise</b> awareness through TV campaigns.","<b>Another solution is to increase</b> the number of buses.","<b>The best solution is to ban</b> cars from the city centre."],
+ tip:"⭐ Use this pattern to organise your ideas: One solution… → Another solution… → The best solution…"},
+{title:"3. First Conditional: If + present, will + verb",
+ pattern:"If + present simple, … will + verb",
+ why:"Use the first conditional to show the good result of your solution. This proves your solution works!",
+ exs:["<b>If</b> the government <b>builds</b> more parks, people <b>will exercise</b> more.","<b>If</b> schools <b>teach</b> healthy eating, obesity <b>will decrease</b>.","<b>If</b> fines <b>increase</b>, fewer drivers <b>will use</b> their phones."],
+ tip:"⭐ Common mistake: don't use \"will\" after \"if\". Say \"If the government <b>builds</b>…\" ✔ — not \"If the government will build…\" ✘"},
+{title:"4. Cause and Effect: lead to / result in / cause",
+ pattern:"Problem + leads to / results in / causes + effect",
+ why:"Use these verbs in Body Paragraph 1 to explain the problem and its effects.",
+ exs:["<span class='prob'>Heavy traffic</span> <b>leads to</b> air pollution and stress.","<span class='prob'>A lack of sleep</span> <b>results in</b> poor performance at work.","<span class='prob'>Fast food</span> <b>causes</b> serious health problems."],
+ tip:"⭐ Grammar note: \"lead <b>to</b>\" and \"result <b>in</b>\" need a preposition, but \"cause\" does not. <span class='arabic'>لاحظ حروف الجر: lead to / result in / cause بدون حرف جر</span>"},
+{title:"5. In order to + verb (purpose)",
+ pattern:"In order to + verb, subject + should/must + verb",
+ why:"Shows the purpose of a solution. It makes your writing sound more academic — perfect for Band 6+.",
+ exs:["<b>In order to reduce</b> pollution, governments should improve public transport.","<b>In order to prevent</b> accidents, drivers must follow speed limits.","<b>In order to tackle</b> obesity, schools should serve healthy food."],
+ tip:"⭐ You can start your sentence with \"In order to…\" — don't forget the comma ( , ) after the first part."},
+{title:"6. Passive for Recommendations: should be + past participle",
+ pattern:"Something + should be + past participle (done/built/banned…)",
+ why:"The passive makes your solutions sound formal and academic — examiners love this at Band 6+.",
+ exs:["Smoking <b>should be banned</b> in all public places.","More hospitals <b>should be built</b> in rural areas.","Recycling <b>should be encouraged</b> in every school."],
+ tip:"⭐ Compare: \"The government should ban smoking\" (active) = \"Smoking should be banned\" (passive). Both are correct — using both shows grammar range!"}
+];
+
+const CAT_NAMES={problems:"⚠️ Problem",causes:"🔗 Cause",solutions:"✅ Solution",results:"📊 Result",people:"👥 People & Actions"};
+
+/* ================= STATE ================= */
+let state={points:0,learned:[],bestQuiz:null,badges:{explorer:false,builder:false,practicer:false,champion:false},name:""};
+let practiceCorrect=0;
+
+const BADGES=[
+{id:"explorer",icon:"🗺️",name:"Word Explorer",desc:"Flip all 32 cards"},
+{id:"builder",icon:"🧱",name:"Structure Builder",desc:"Read all 6 structures"},
+{id:"practicer",icon:"🎯",name:"Practice Pro",desc:"20 correct practice answers"},
+{id:"champion",icon:"🏆",name:"Quiz Champion",desc:"Score 80%+ on the quiz"}];
+
+/* ================= LEARN ================= */
+function renderCards(filter){
+  const grid=document.getElementById("cardsGrid");grid.innerHTML="";
+  WORDS.forEach((v,i)=>{
+    if(filter!=="all"&&v.cat!==filter)return;
+    const card=document.createElement("div");
+    card.className="fcard cat-"+v.cat+(state.learned.includes(i)?" learned":"");
+    card.innerHTML=`<div class="fcard-inner">
+      <div class="fface front"><div class="word">${v.w}</div><div class="pos">${v.pos} · ${CAT_NAMES[v.cat]}</div><div class="tap">👆 Tap to flip</div></div>
+      <div class="fface back"><div class="ar arabic">${v.ar}</div><div class="def">${v.def}</div><div class="ex">"${v.ex}"</div></div>
+    </div>`;
+    card.onclick=()=>{
+      card.classList.toggle("flipped");
+      if(!state.learned.includes(i)){
+        state.learned.push(i);addPoints(5);card.classList.add("learned");
+        if(state.learned.length===WORDS.length)earnBadge("explorer");
+        updateHUD();
+      }
+    };
+    grid.appendChild(card);
+  });
+}
+document.querySelectorAll(".cat-pill").forEach(p=>p.onclick=()=>{
+  document.querySelectorAll(".cat-pill").forEach(x=>x.classList.remove("active"));
+  p.classList.add("active");renderCards(p.dataset.cat);
+});
+
+/* ================= STRUCTURES ================= */
+let structuresSeen=false;
+function renderStructures(){
+  const box=document.getElementById("structList");box.innerHTML="";
+  STRUCTURES.forEach(s=>{
+    const d=document.createElement("div");d.className="struct-card";
+    d.innerHTML=`<h3>${s.title}</h3><div class="struct-pattern">${s.pattern}</div><p class="why">${s.why}</p>`+
+      s.exs.map(e=>`<div class="struct-ex">${e}</div>`).join("")+
+      `<div class="struct-tip">${s.tip}</div>`;
+    box.appendChild(d);
+  });
+}
+
+/* ================= TABS ================= */
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+  document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));
+  t.classList.add("active");
+  document.getElementById("panel-"+t.dataset.panel).classList.add("active");
+  if(t.dataset.panel==="structures"&&!structuresSeen){structuresSeen=true;earnBadge("builder");}
+  if(t.dataset.panel==="practice")startPractice(currentMode);
+  if(t.dataset.panel==="quiz")renderQuizIntro();
+  if(t.dataset.panel==="progress")updateHUD();
+});
+
+/* ================= PRACTICE ================= */
+let currentMode="match";
+document.querySelectorAll(".mode-btn").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".mode-btn").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active");currentMode=b.dataset.mode;startPractice(currentMode);
+});
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+/* --- Matching --- */
+let matchSel=null,matchLeft=0;
+function startMatch(){
+  const box=document.getElementById("practiceBox");
+  const pick=shuffle(WORDS).slice(0,5);
+  matchLeft=5;matchSel=null;
+  const left=shuffle(pick.map(v=>({t:v.w,k:v.w,side:"en"})));
+  const right=shuffle(pick.map(v=>({t:v.ar,k:v.w,side:"ar"})));
+  box.innerHTML=`<p class="progress-line">Match each English word with its Arabic meaning</p><div class="match-grid" id="matchGrid"></div><div class="feedback" id="matchFb"></div>`;
+  const grid=document.getElementById("matchGrid");
+  for(let i=0;i<5;i++){grid.appendChild(mkMatch(left[i]));grid.appendChild(mkMatch(right[i]));}
+}
+function mkMatch(o){
+  const d=document.createElement("div");d.className="match-item"+(o.side==="ar"?" arabic":"");d.textContent=o.t;d.dataset.k=o.k;d.dataset.side=o.side;
+  d.onclick=()=>{
+    if(d.classList.contains("matched"))return;
+    if(!matchSel){matchSel=d;d.classList.add("selected");return;}
+    if(matchSel===d){d.classList.remove("selected");matchSel=null;return;}
+    if(matchSel.dataset.side===d.dataset.side){matchSel.classList.remove("selected");matchSel=d;d.classList.add("selected");return;}
+    const fb=document.getElementById("matchFb");
+    if(matchSel.dataset.k===d.dataset.k){
+      matchSel.classList.remove("selected");matchSel.classList.add("matched");d.classList.add("matched");
+      addPoints(10);countPractice();matchLeft--;matchSel=null;
+      fb.className="feedback good";fb.textContent="✔ Correct! +10 points";
+      if(matchLeft===0){fb.textContent="🎉 All matched! Loading a new set…";setTimeout(startMatch,1400);}
+    }else{
+      d.classList.add("wrong");const m=matchSel;m.classList.add("wrong");
+      fb.className="feedback bad";fb.textContent="✘ Not a match — try again";
+      setTimeout(()=>{d.classList.remove("wrong");m.classList.remove("wrong","selected");},450);
+      matchSel=null;
+    }
+  };
+  return d;
+}
+
+/* --- Gap fill --- */
+const GAPS=[
+{s:"Traffic congestion is a serious ____ in many big cities.",a:"issue",o:["issue","benefit","solution","factor"]},
+{s:"A lack of exercise can ____ obesity and heart disease.",a:"lead to",o:["lead to","prevent","improve","ban"]},
+{s:"One ____ is to build more cycle paths in the city.",a:"solution",o:["solution","problem","crisis","consequence"]},
+{s:"Governments should ____ awareness about the dangers of smoking.",a:"raise",o:["raise","reduce","ban","cause"]},
+{s:"Pollution has a very ____ effect on children's health.",a:"harmful",o:["harmful","effective","helpful","affordable"]},
+{s:"Many flights were cancelled ____ the bad weather.",a:"due to",o:["due to","result in","lead to","in order to"]},
+{s:"Wearing a helmet can ____ serious head injuries.",a:"prevent",o:["prevent","cause","encourage","result in"]},
+{s:"Higher fines are an ____ way to stop people littering.",a:"effective",o:["effective","alarming","widespread","harmful"]},
+{s:"The ____ should build more affordable housing for young families.",a:"government",o:["government","individuals","consequence","impact"]},
+{s:"Cities should ____ cars from the city centre to reduce pollution.",a:"ban",o:["ban","encourage","benefit","improve"]},
+{s:"Eating too much fast food ____ many health problems.",a:"causes",o:["causes","solves","prevents","improves"]},
+{s:"Schools should ____ students to do more sport.",a:"encourage",o:["encourage","ban","reduce","prevent"]},
+{s:"The number of accidents is rising at an ____ rate.",a:"alarming",o:["alarming","effective","affordable","helpful"]},
+{s:"Stress is an important ____ in many workplace problems.",a:"factor",o:["factor","benefit","solution","authority"]},
+{s:"One ____ of recycling is a cleaner environment.",a:"benefit",o:["benefit","crisis","challenge","cause"]}];
+let gapQ=[],gapIdx=0;
+function startGap(){gapQ=shuffle(GAPS).slice(0,8);gapIdx=0;renderGap();}
+function renderGap(){
+  const box=document.getElementById("practiceBox");
+  if(gapIdx>=gapQ.length){box.innerHTML=`<div class="result-box"><div style="font-size:2.5rem">🎉</div><p><b>Gap-fill round complete!</b></p><button class="big-btn" onclick="startGap()">🔁 Play Again</button></div>`;return;}
+  const q=gapQ[gapIdx];
+  box.innerHTML=`<p class="progress-line">Question ${gapIdx+1} of ${gapQ.length}</p>
+  <div class="gap-sentence">${q.s.replace("____",'<span class="gap-blank" id="gapBlank">______</span>')}</div>
+  <div class="option-row">${shuffle(q.o).map(o=>`<button class="opt-btn" onclick="checkGap(this,'${o.replace(/'/g,"\\'")}')">${o}</button>`).join("")}</div>
+  <div class="feedback" id="gapFb"></div>`;
+}
+function checkGap(btn,val){
+  const q=gapQ[gapIdx],fb=document.getElementById("gapFb");
+  document.querySelectorAll("#practiceBox .opt-btn").forEach(b=>b.disabled=true);
+  if(val===q.a){btn.classList.add("correct");document.getElementById("gapBlank").textContent=q.a;addPoints(10);countPractice();fb.className="feedback good";fb.textContent="✔ Correct! +10 points";}
+  else{btn.classList.add("incorrect");document.querySelectorAll("#practiceBox .opt-btn").forEach(b=>{if(b.textContent===q.a)b.classList.add("correct")});fb.className="feedback bad";fb.textContent="✘ The answer is: "+q.a;}
+  gapIdx++;setTimeout(renderGap,1500);
+}
+
+/* --- Structure builder --- */
+const BUILDS=[
+{q:"Which sentence uses a modal verb correctly?",a:"Governments should build more schools.",o:["Governments should build more schools.","Governments should builds more schools.","Governments should to build more schools."]},
+{q:"Which sentence uses the first conditional correctly?",a:"If the city improves buses, more people will use them.",o:["If the city improves buses, more people will use them.","If the city will improve buses, more people use them.","If the city improved buses, more people will using them."]},
+{q:"Choose the correct 'One solution…' sentence:",a:"One solution is to raise awareness in schools.",o:["One solution is to raise awareness in schools.","One solution is raise awareness in schools.","One solution is to raising awareness in schools."]},
+{q:"Which cause–effect sentence is correct?",a:"Heavy traffic leads to air pollution.",o:["Heavy traffic leads to air pollution.","Heavy traffic leads air pollution.","Heavy traffic results air pollution."]},
+{q:"Which passive recommendation is correct?",a:"Smoking should be banned in public places.",o:["Smoking should be banned in public places.","Smoking should banned in public places.","Smoking should be ban in public places."]},
+{q:"Choose the correct 'In order to…' sentence:",a:"In order to reduce pollution, people should cycle to work.",o:["In order to reduce pollution, people should cycle to work.","In order to reducing pollution, people should cycle to work.","In order reduce pollution, people should cycle to work."]},
+{q:"Which sentence shows a STRONG, necessary solution?",a:"Factories must stop dumping waste in rivers.",o:["Factories must stop dumping waste in rivers.","Factories could stop dumping waste in rivers.","Factories might stop dumping waste in rivers."]},
+{q:"Which sentence gives a POSSIBLE option (not strong)?",a:"Schools could offer free breakfast to students.",o:["Schools could offer free breakfast to students.","Schools must offer free breakfast to students.","Schools have to offer free breakfast to students."]}];
+let buildQ=[],buildIdx=0;
+function startBuild(){buildQ=shuffle(BUILDS);buildIdx=0;renderBuild();}
+function renderBuild(){
+  const box=document.getElementById("practiceBox");
+  if(buildIdx>=buildQ.length){box.innerHTML=`<div class="result-box"><div style="font-size:2.5rem">🎉</div><p><b>Structure round complete!</b></p><button class="big-btn" onclick="startBuild()">🔁 Play Again</button></div>`;return;}
+  const q=buildQ[buildIdx];
+  box.innerHTML=`<p class="progress-line">Question ${buildIdx+1} of ${buildQ.length}</p>
+  <div class="quiz-q">${q.q}</div>
+  <div class="quiz-opts">${shuffle(q.o).map(o=>`<button class="quiz-opt">${o}</button>`).join("")}</div>
+  <div class="feedback" id="buildFb"></div>`;
+  document.querySelectorAll("#practiceBox .quiz-opt").forEach(b=>b.onclick=()=>{
+    document.querySelectorAll("#practiceBox .quiz-opt").forEach(x=>x.disabled=true);
+    const fb=document.getElementById("buildFb");
+    if(b.textContent===q.a){b.classList.add("correct");addPoints(10);countPractice();fb.className="feedback good";fb.textContent="✔ Correct! +10 points";}
+    else{b.classList.add("incorrect");document.querySelectorAll("#practiceBox .quiz-opt").forEach(x=>{if(x.textContent===q.a)x.classList.add("correct")});fb.className="feedback bad";fb.textContent="✘ Look at the green sentence — that's the correct pattern.";}
+    buildIdx++;setTimeout(renderBuild,1700);
+  });
+}
+function startPractice(mode){if(mode==="match")startMatch();else if(mode==="gap")startGap();else startBuild();}
+function countPractice(){practiceCorrect++;if(practiceCorrect>=20)earnBadge("practicer");}
+
+/* ================= QUIZ ================= */
+const QUIZ=[
+{q:"Traffic congestion is a serious ____ in most capital cities.",a:"issue",o:["issue","benefit","solution","effect"]},
+{q:"Obesity has become a ____ problem — it affects people everywhere.",a:"widespread",o:["widespread","effective","affordable","preventable"]},
+{q:"Many countries are facing a water ____ because of climate change.",a:"crisis",o:["crisis","benefit","solution","factor"]},
+{q:"Spending many hours on video games can be ____ to teenagers.",a:"harmful",o:["harmful","effective","helpful","beneficial"]},
+{q:"A lack of sleep can ____ poor concentration at school.",a:"lead to",o:["lead to","prevent","solve","improve"]},
+{q:"The match was cancelled ____ heavy rain.",a:"due to",o:["due to","lead to","result in","in order to"]},
+{q:"Careless driving ____ many road accidents every year.",a:"causes",o:["causes","prevents","solves","bans"]},
+{q:"One effective ____ is to increase fines for littering.",a:"solution",o:["solution","problem","challenge","consequence"]},
+{q:"Governments must ____ the problem of youth unemployment.",a:"tackle",o:["tackle","benefit","result","lack"]},
+{q:"Planting more trees can ____ air pollution in cities.",a:"reduce",o:["reduce","raise","cause","lead"]},
+{q:"Regular exercise can ____ many health problems before they start.",a:"prevent",o:["prevent","cause","result in","lead to"]},
+{q:"TV campaigns can ____ awareness about road safety.",a:"raise",o:["raise","reduce","prevent","ban"]},
+{q:"Social media has a strong ____ on how young people think.",a:"impact",o:["impact","solution","authority","individual"]},
+{q:"One ____ of exercise is better sleep at night.",a:"benefit",o:["benefit","crisis","consequence","challenge"]},
+{q:"Recycling bins in every street would be an ____ solution.",a:"effective",o:["effective","alarming","harmful","widespread"]},
+{q:"____ can help by turning off lights and saving water at home.",a:"Individuals",o:["Individuals","Consequences","Impacts","Solutions"]},
+{q:"Which sentence is grammatically correct?",a:"The government should build more hospitals.",o:["The government should build more hospitals.","The government should builds more hospitals.","The government should to build more hospitals."]},
+{q:"Which first conditional sentence is correct?",a:"If schools teach recycling, students will help the environment.",o:["If schools teach recycling, students will help the environment.","If schools will teach recycling, students help the environment.","If schools taught recycling, students will helping the environment."]},
+{q:"Which passive sentence is correct?",a:"Junk food should be banned in school canteens.",o:["Junk food should be banned in school canteens.","Junk food should banned in school canteens.","Junk food should be ban in school canteens."]},
+{q:"Which sentence uses 'In order to' correctly?",a:"In order to save water, people should take shorter showers.",o:["In order to save water, people should take shorter showers.","In order saving water, people should take shorter showers.","In order to saving water, people should take shorter showers."]}];
+let quizIdx=0,quizScore=0,quizOrder=[];
+function renderQuizIntro(){
+  document.getElementById("quizBox").innerHTML=`<div class="result-box">
+    <div style="font-size:2.6rem">🏆</div>
+    <p style="margin:10px 0"><b>20 questions</b> — vocabulary + sentence structures.<br>Score <b>16/20 (80%)</b> or more to earn your certificate.</p>
+    <button class="big-btn" onclick="startQuiz()">▶ Start the Quiz</button></div>`;
+}
+function startQuiz(){quizIdx=0;quizScore=0;quizOrder=shuffle(QUIZ);renderQuizQ();}
+function renderQuizQ(){
+  const box=document.getElementById("quizBox");
+  if(quizIdx>=quizOrder.length){finishQuiz();return;}
+  const q=quizOrder[quizIdx];
+  box.innerHTML=`<p class="progress-line">Question ${quizIdx+1} of 20 · Score: ${quizScore}</p>
+  <div class="quiz-q">${q.q.replace("____",'<span class="blank"></span>')}</div>
+  <div class="quiz-opts">${shuffle(q.o).map(o=>`<button class="quiz-opt">${o}</button>`).join("")}</div>
+  <div class="feedback" id="quizFb"></div>`;
+  document.querySelectorAll("#quizBox .quiz-opt").forEach(b=>b.onclick=()=>{
+    document.querySelectorAll("#quizBox .quiz-opt").forEach(x=>x.disabled=true);
+    const fb=document.getElementById("quizFb");
+    if(b.textContent===q.a){b.classList.add("correct");quizScore++;fb.className="feedback good";fb.textContent="✔ Correct!";}
+    else{b.classList.add("incorrect");document.querySelectorAll("#quizBox .quiz-opt").forEach(x=>{if(x.textContent===q.a)x.classList.add("correct")});fb.className="feedback bad";fb.textContent="✘ Correct answer: "+q.a;}
+    quizIdx++;setTimeout(renderQuizQ,1300);
+  });
+}
+function finishQuiz(){
+  const pct=Math.round(quizScore/20*100);
+  const passed=pct>=80;
+  if(state.bestQuiz===null||quizScore>state.bestQuiz)state.bestQuiz=quizScore;
+  addPoints(quizScore*5);
+  const box=document.getElementById("quizBox");
+  box.innerHTML=`<div class="result-box">
+    <div style="font-size:2.6rem">${passed?"🎉":"💪"}</div>
+    <div class="result-score">${quizScore}/20</div>
+    <p style="font-weight:700;color:${passed?"var(--green)":"var(--coral)"}">${pct}% — ${passed?"PASSED! Excellent work!":"Keep practising — you need 80% to pass."}</p>
+    <p style="color:var(--muted);font-size:.9rem;margin-top:6px">${passed?"Go to 💾 My Progress to see your certificate.":"Review the Learn and Structures tabs, then try again."}</p>
+    <button class="big-btn" onclick="startQuiz()">🔁 ${passed?"Try for a perfect score":"Try Again"}</button></div>`;
+  if(passed){earnBadge("champion");confettiBurst();}
+  updateHUD();
+}
+
+/* ================= GAMIFICATION ================= */
+function addPoints(n){state.points+=n;updateHUD();}
+function earnBadge(id){
+  if(state.badges[id])return;
+  state.badges[id]=true;confettiBurst();updateHUD();
+}
+function confettiBurst(){
+  const colors=["#E9B44C","#0E4D5C","#D95F4B","#2E8B57","#6B5B95"];
+  for(let i=0;i<60;i++){
+    const c=document.createElement("div");c.className="confetti";
+    c.style.left=Math.random()*100+"vw";
+    c.style.background=colors[Math.floor(Math.random()*colors.length)];
+    c.style.borderRadius=Math.random()>.5?"50%":"2px";
+    const dur=2+Math.random()*2;
+    c.style.transition=`transform ${dur}s linear, opacity ${dur}s`;
+    document.body.appendChild(c);
+    requestAnimationFrame(()=>{c.style.transform=`translateY(105vh) rotate(${360+Math.random()*720}deg)`;c.style.opacity="0";});
+    setTimeout(()=>c.remove(),dur*1000+200);
+  }
+}
+function updateHUD(){
+  document.getElementById("pointsChip").textContent=state.points;
+  document.getElementById("learnedChip").textContent=state.learned.length;
+  const bCount=Object.values(state.badges).filter(Boolean).length;
+  document.getElementById("badgeChip").textContent=bCount;
+  const pct=Math.min(100,Math.round(
+    (state.learned.length/WORDS.length)*50 + (state.bestQuiz?Math.min(state.bestQuiz/20,1)*50:0)
+  ));
+  document.getElementById("bridgeFill").style.width=pct+"%";
+  document.getElementById("bridgeWalker").style.left=pct+"%";
+  document.getElementById("bridgeWalker").textContent=pct>=100?"🎉":"🚶";
+  document.getElementById("statPoints").textContent=state.points;
+  document.getElementById("statLearned").textContent=state.learned.length+"/32";
+  document.getElementById("statQuiz").textContent=state.bestQuiz===null?"—":state.bestQuiz+"/20";
+  document.getElementById("statBadges").textContent=bCount+"/4";
+  const br=document.getElementById("badgeRow");br.innerHTML="";
+  BADGES.forEach(b=>{
+    const d=document.createElement("div");d.className="badge"+(state.badges[b.id]?" earned":"");
+    d.innerHTML=`<div class="icon">${b.icon}</div><div class="name">${b.name}</div><div style="font-size:.65rem;color:var(--muted)">${b.desc}</div>`;
+    br.appendChild(d);
+  });
+  renderCertificate();
+}
+function renderCertificate(){
+  const area=document.getElementById("certArea");
+  if(state.bestQuiz!==null&&state.bestQuiz>=16){
+    const name=document.getElementById("studentName").value.trim()||state.name||"Student Name";
+    area.innerHTML=`<div class="certificate">
+      <h3>🎓 Certificate of Achievement</h3>
+      <p>This certifies that</p>
+      <div class="cname">${name}</div>
+      <p>has successfully completed the</p>
+      <p style="font-weight:800;color:var(--teal);font-size:1.05rem">Problem–Solution Vocabulary Builder</p>
+      <p>IELTS Academic Writing Task 2 · Score: <b>${state.bestQuiz}/20 (${Math.round(state.bestQuiz/20*100)}%)</b></p>
+      <p>Date: ${new Date().toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"})}</p>
+      <div class="cred">Designed by: Nazila Motahari</div>
+    </div>
+    <button class="big-btn" onclick="window.print()">🖨️ Print Certificate</button>`;
+  }else{
+    area.innerHTML=`<p style="text-align:center;color:var(--muted);margin-top:18px">🎓 Pass the Final Quiz with 80% or more to unlock your certificate.</p>`;
+  }
+}
+document.getElementById("studentName").addEventListener("input",e=>{state.name=e.target.value;renderCertificate();});
+
+/* ================= SAVE / LOAD ================= */
+function saveProgress(){
+  state.name=document.getElementById("studentName").value.trim();
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=(state.name?state.name.replace(/\s+/g,"_")+"_":"")+"problem_solution_vocab_progress.json";
+  a.click();URL.revokeObjectURL(a.href);
+}
+function loadProgress(ev){
+  const f=ev.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const d=JSON.parse(r.result);
+      if(typeof d.points!=="number"||!Array.isArray(d.learned))throw 0;
+      state=Object.assign({points:0,learned:[],bestQuiz:null,badges:{explorer:false,builder:false,practicer:false,champion:false},name:""},d);
+      document.getElementById("studentName").value=state.name||"";
+      updateHUD();
+      renderCards(document.querySelector(".cat-pill.active").dataset.cat);
+      alert("✔ Progress loaded! Welcome back"+(state.name?", "+state.name:"")+" 🎉");
+    }catch(e){alert("✘ Sorry, that file is not a valid progress file.");}
+  };
+  r.readAsText(f);ev.target.value="";
+}
+
+/* ================= INIT ================= */
+renderCards("all");renderStructures();updateHUD();
+</script>
+</body>
+</html>
