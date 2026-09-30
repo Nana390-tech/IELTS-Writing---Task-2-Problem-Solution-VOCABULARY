@@ -158,8 +158,15 @@ footer b{color:var(--teal)}
   .match-grid{grid-template-columns:1fr 1fr}
   .fcard{height:240px}
 }
+button:focus-visible,.fcard:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.fcard:focus-visible{border-radius:var(--radius)}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .confetti{display:none}
+}
 @media print{
-  header,.tabs,.save-box,footer,.next-btn,.big-btn,.badge-row{display:none!important}
+  body{background:#fff}
+  header,.tabs,.save-box,footer,.next-btn,.big-btn,.badge-row,#panel-progress .section-title,#panel-progress .section-sub{display:none!important}
   .certificate{border:10px double #C8942F;box-shadow:none}
 }
 </style>
@@ -183,7 +190,7 @@ footer b{color:var(--teal)}
   </div>
 </header>
 
-<nav class="tabs">
+<nav class="tabs" aria-label="Sections">
   <button class="tab active" data-panel="learn">📚 Learn Words</button>
   <button class="tab" data-panel="structures">🧱 Sentence Structures</button>
   <button class="tab" data-panel="practice">🎯 Practice</button>
@@ -304,7 +311,7 @@ const STRUCTURES=[
 {title:"1. Modal Verbs for Solutions: should / must / could",
  pattern:"Subject + should / must / could + verb (base form)",
  why:"Modal verbs are the most important grammar for giving solutions. <b>Should</b> = a good idea (recommendation). <b>Must</b> = very strong and necessary. <b>Could</b> = one possible option.",
- exs:["Governments <b>should invest</b> in public transport.","People <b>must stop</b> throwing rubbish in the sea.","Schools <b>could offer</b> free sports classes after class."],
+ exs:["Governments <b>should invest</b> in public transport.","People <b>must stop</b> throwing rubbish in the sea.","Schools <b>could offer</b> free sports classes after school."],
  tip:"⭐ Remember: after should / must / could, the verb never changes. Say \"should <b>build</b>\" ✔ — not \"should builds\" ✘ or \"should to build\" ✘. <span class='arabic'>بعد الأفعال الناقصة، يبقى الفعل في صيغته الأساسية دائماً</span>"},
 {title:"2. One solution is + to (verb)",
  pattern:"One solution is + to + verb  /  Another solution is + to + verb",
@@ -336,8 +343,9 @@ const STRUCTURES=[
 const CAT_NAMES={problems:"⚠️ Problem",causes:"🔗 Cause",solutions:"✅ Solution",results:"📊 Result",people:"👥 People & Actions"};
 
 /* ================= STATE ================= */
-let state={points:0,learned:[],bestQuiz:null,badges:{explorer:false,builder:false,practicer:false,champion:false},name:""};
-let practiceCorrect=0;
+function freshState(){return {points:0,learned:[],bestQuiz:null,practiceCorrect:0,badges:{explorer:false,builder:false,practicer:false,champion:false},name:""};}
+let state=freshState();
+function esc(t){return String(t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 
 const BADGES=[
 {id:"explorer",icon:"🗺️",name:"Word Explorer",desc:"Flip all 32 cards"},
@@ -352,6 +360,7 @@ function renderCards(filter){
     if(filter!=="all"&&v.cat!==filter)return;
     const card=document.createElement("div");
     card.className="fcard cat-"+v.cat+(state.learned.includes(i)?" learned":"");
+    card.tabIndex=0;card.setAttribute("role","button");card.setAttribute("aria-label",v.w+" — flip card");
     card.innerHTML=`<div class="fcard-inner">
       <div class="fface front"><div class="word">${v.w}</div><div class="pos">${v.pos} · ${CAT_NAMES[v.cat]}</div><div class="tap">👆 Tap to flip</div></div>
       <div class="fface back"><div class="ar arabic">${v.ar}</div><div class="def">${v.def}</div><div class="ex">"${v.ex}"</div></div>
@@ -364,6 +373,7 @@ function renderCards(filter){
         updateHUD();
       }
     };
+    card.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();card.click();}};
     grid.appendChild(card);
   });
 }
@@ -390,15 +400,16 @@ document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
   document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
   document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));
   t.classList.add("active");
+  document.querySelectorAll(".tab").forEach(x=>x.setAttribute("aria-selected",x===t));
   document.getElementById("panel-"+t.dataset.panel).classList.add("active");
   if(t.dataset.panel==="structures"&&!structuresSeen){structuresSeen=true;earnBadge("builder");}
   if(t.dataset.panel==="practice")startPractice(currentMode);
-  if(t.dataset.panel==="quiz")renderQuizIntro();
+  if(t.dataset.panel==="quiz"&&!quizActive)renderQuizIntro();
   if(t.dataset.panel==="progress")updateHUD();
 });
 
 /* ================= PRACTICE ================= */
-let currentMode="match";
+let currentMode="match",practiceTimer=null;
 document.querySelectorAll(".mode-btn").forEach(b=>b.onclick=()=>{
   document.querySelectorAll(".mode-btn").forEach(x=>x.classList.remove("active"));
   b.classList.add("active");currentMode=b.dataset.mode;startPractice(currentMode);
@@ -409,11 +420,12 @@ function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor
 let matchSel=null,matchLeft=0;
 function startMatch(){
   const box=document.getElementById("practiceBox");
+  clearTimeout(practiceTimer);
   const pick=shuffle(WORDS).slice(0,5);
   matchLeft=5;matchSel=null;
   const left=shuffle(pick.map(v=>({t:v.w,k:v.w,side:"en"})));
   const right=shuffle(pick.map(v=>({t:v.ar,k:v.w,side:"ar"})));
-  box.innerHTML=`<p class="progress-line">Match each English word with its Arabic meaning</p><div class="match-grid" id="matchGrid"></div><div class="feedback" id="matchFb"></div>`;
+  box.innerHTML=`<p class="progress-line">Match each English word with its Arabic meaning</p><div class="match-grid" id="matchGrid"></div><div class="feedback" id="matchFb" aria-live="polite"></div>`;
   const grid=document.getElementById("matchGrid");
   for(let i=0;i<5;i++){grid.appendChild(mkMatch(left[i]));grid.appendChild(mkMatch(right[i]));}
 }
@@ -429,7 +441,7 @@ function mkMatch(o){
       matchSel.classList.remove("selected");matchSel.classList.add("matched");d.classList.add("matched");
       addPoints(10);countPractice();matchLeft--;matchSel=null;
       fb.className="feedback good";fb.textContent="✔ Correct! +10 points";
-      if(matchLeft===0){fb.textContent="🎉 All matched! Loading a new set…";setTimeout(startMatch,1400);}
+      if(matchLeft===0){fb.textContent="🎉 All matched! Loading a new set…";practiceTimer=setTimeout(startMatch,1400);}
     }else{
       d.classList.add("wrong");const m=matchSel;m.classList.add("wrong");
       fb.className="feedback bad";fb.textContent="✘ Not a match — try again";
@@ -458,7 +470,7 @@ const GAPS=[
 {s:"Stress is an important ____ in many workplace problems.",a:"factor",o:["factor","benefit","solution","authority"]},
 {s:"One ____ of recycling is a cleaner environment.",a:"benefit",o:["benefit","crisis","challenge","cause"]}];
 let gapQ=[],gapIdx=0;
-function startGap(){gapQ=shuffle(GAPS).slice(0,8);gapIdx=0;renderGap();}
+function startGap(){clearTimeout(practiceTimer);gapQ=shuffle(GAPS).slice(0,8);gapIdx=0;renderGap();}
 function renderGap(){
   const box=document.getElementById("practiceBox");
   if(gapIdx>=gapQ.length){box.innerHTML=`<div class="result-box"><div style="font-size:2.5rem">🎉</div><p><b>Gap-fill round complete!</b></p><button class="big-btn" onclick="startGap()">🔁 Play Again</button></div>`;return;}
@@ -466,14 +478,14 @@ function renderGap(){
   box.innerHTML=`<p class="progress-line">Question ${gapIdx+1} of ${gapQ.length}</p>
   <div class="gap-sentence">${q.s.replace("____",'<span class="gap-blank" id="gapBlank">______</span>')}</div>
   <div class="option-row">${shuffle(q.o).map(o=>`<button class="opt-btn" onclick="checkGap(this,'${o.replace(/'/g,"\\'")}')">${o}</button>`).join("")}</div>
-  <div class="feedback" id="gapFb"></div>`;
+  <div class="feedback" id="gapFb" aria-live="polite"></div>`;
 }
 function checkGap(btn,val){
   const q=gapQ[gapIdx],fb=document.getElementById("gapFb");
   document.querySelectorAll("#practiceBox .opt-btn").forEach(b=>b.disabled=true);
   if(val===q.a){btn.classList.add("correct");document.getElementById("gapBlank").textContent=q.a;addPoints(10);countPractice();fb.className="feedback good";fb.textContent="✔ Correct! +10 points";}
   else{btn.classList.add("incorrect");document.querySelectorAll("#practiceBox .opt-btn").forEach(b=>{if(b.textContent===q.a)b.classList.add("correct")});fb.className="feedback bad";fb.textContent="✘ The answer is: "+q.a;}
-  gapIdx++;setTimeout(renderGap,1500);
+  gapIdx++;practiceTimer=setTimeout(renderGap,1500);
 }
 
 /* --- Structure builder --- */
@@ -487,7 +499,7 @@ const BUILDS=[
 {q:"Which sentence shows a STRONG, necessary solution?",a:"Factories must stop dumping waste in rivers.",o:["Factories must stop dumping waste in rivers.","Factories could stop dumping waste in rivers.","Factories might stop dumping waste in rivers."]},
 {q:"Which sentence gives a POSSIBLE option (not strong)?",a:"Schools could offer free breakfast to students.",o:["Schools could offer free breakfast to students.","Schools must offer free breakfast to students.","Schools have to offer free breakfast to students."]}];
 let buildQ=[],buildIdx=0;
-function startBuild(){buildQ=shuffle(BUILDS);buildIdx=0;renderBuild();}
+function startBuild(){clearTimeout(practiceTimer);buildQ=shuffle(BUILDS);buildIdx=0;renderBuild();}
 function renderBuild(){
   const box=document.getElementById("practiceBox");
   if(buildIdx>=buildQ.length){box.innerHTML=`<div class="result-box"><div style="font-size:2.5rem">🎉</div><p><b>Structure round complete!</b></p><button class="big-btn" onclick="startBuild()">🔁 Play Again</button></div>`;return;}
@@ -495,24 +507,24 @@ function renderBuild(){
   box.innerHTML=`<p class="progress-line">Question ${buildIdx+1} of ${buildQ.length}</p>
   <div class="quiz-q">${q.q}</div>
   <div class="quiz-opts">${shuffle(q.o).map(o=>`<button class="quiz-opt">${o}</button>`).join("")}</div>
-  <div class="feedback" id="buildFb"></div>`;
+  <div class="feedback" id="buildFb" aria-live="polite"></div>`;
   document.querySelectorAll("#practiceBox .quiz-opt").forEach(b=>b.onclick=()=>{
     document.querySelectorAll("#practiceBox .quiz-opt").forEach(x=>x.disabled=true);
     const fb=document.getElementById("buildFb");
     if(b.textContent===q.a){b.classList.add("correct");addPoints(10);countPractice();fb.className="feedback good";fb.textContent="✔ Correct! +10 points";}
     else{b.classList.add("incorrect");document.querySelectorAll("#practiceBox .quiz-opt").forEach(x=>{if(x.textContent===q.a)x.classList.add("correct")});fb.className="feedback bad";fb.textContent="✘ Look at the green sentence — that's the correct pattern.";}
-    buildIdx++;setTimeout(renderBuild,1700);
+    buildIdx++;practiceTimer=setTimeout(renderBuild,1700);
   });
 }
-function startPractice(mode){if(mode==="match")startMatch();else if(mode==="gap")startGap();else startBuild();}
-function countPractice(){practiceCorrect++;if(practiceCorrect>=20)earnBadge("practicer");}
+function startPractice(mode){clearTimeout(practiceTimer);if(mode==="match")startMatch();else if(mode==="gap")startGap();else startBuild();}
+function countPractice(){state.practiceCorrect=(state.practiceCorrect||0)+1;if(state.practiceCorrect>=20)earnBadge("practicer");}
 
 /* ================= QUIZ ================= */
 const QUIZ=[
 {q:"Traffic congestion is a serious ____ in most capital cities.",a:"issue",o:["issue","benefit","solution","effect"]},
 {q:"Obesity has become a ____ problem — it affects people everywhere.",a:"widespread",o:["widespread","effective","affordable","preventable"]},
 {q:"Many countries are facing a water ____ because of climate change.",a:"crisis",o:["crisis","benefit","solution","factor"]},
-{q:"Spending many hours on video games can be ____ to teenagers.",a:"harmful",o:["harmful","effective","helpful","beneficial"]},
+{q:"Spending too many hours on video games can be ____ to teenagers.",a:"harmful",o:["harmful","effective","helpful","beneficial"]},
 {q:"A lack of sleep can ____ poor concentration at school.",a:"lead to",o:["lead to","prevent","solve","improve"]},
 {q:"The match was cancelled ____ heavy rain.",a:"due to",o:["due to","lead to","result in","in order to"]},
 {q:"Careless driving ____ many road accidents every year.",a:"causes",o:["causes","prevents","solves","bans"]},
@@ -529,43 +541,44 @@ const QUIZ=[
 {q:"Which first conditional sentence is correct?",a:"If schools teach recycling, students will help the environment.",o:["If schools teach recycling, students will help the environment.","If schools will teach recycling, students help the environment.","If schools taught recycling, students will helping the environment."]},
 {q:"Which passive sentence is correct?",a:"Junk food should be banned in school canteens.",o:["Junk food should be banned in school canteens.","Junk food should banned in school canteens.","Junk food should be ban in school canteens."]},
 {q:"Which sentence uses 'In order to' correctly?",a:"In order to save water, people should take shorter showers.",o:["In order to save water, people should take shorter showers.","In order saving water, people should take shorter showers.","In order to saving water, people should take shorter showers."]}];
-let quizIdx=0,quizScore=0,quizOrder=[];
+let quizIdx=0,quizScore=0,quizOrder=[],quizActive=false,quizTimer=null;
 function renderQuizIntro(){
   document.getElementById("quizBox").innerHTML=`<div class="result-box">
     <div style="font-size:2.6rem">🏆</div>
     <p style="margin:10px 0"><b>20 questions</b> — vocabulary + sentence structures.<br>Score <b>16/20 (80%)</b> or more to earn your certificate.</p>
     <button class="big-btn" onclick="startQuiz()">▶ Start the Quiz</button></div>`;
 }
-function startQuiz(){quizIdx=0;quizScore=0;quizOrder=shuffle(QUIZ);renderQuizQ();}
+function startQuiz(){clearTimeout(quizTimer);quizActive=true;quizIdx=0;quizScore=0;quizOrder=shuffle(QUIZ);renderQuizQ();}
 function renderQuizQ(){
   const box=document.getElementById("quizBox");
   if(quizIdx>=quizOrder.length){finishQuiz();return;}
   const q=quizOrder[quizIdx];
-  box.innerHTML=`<p class="progress-line">Question ${quizIdx+1} of 20 · Score: ${quizScore}</p>
+  box.innerHTML=`<p class="progress-line">Question ${quizIdx+1} of ${quizOrder.length} · Score: ${quizScore}</p>
   <div class="quiz-q">${q.q.replace("____",'<span class="blank"></span>')}</div>
   <div class="quiz-opts">${shuffle(q.o).map(o=>`<button class="quiz-opt">${o}</button>`).join("")}</div>
-  <div class="feedback" id="quizFb"></div>`;
+  <div class="feedback" id="quizFb" aria-live="polite"></div>`;
   document.querySelectorAll("#quizBox .quiz-opt").forEach(b=>b.onclick=()=>{
     document.querySelectorAll("#quizBox .quiz-opt").forEach(x=>x.disabled=true);
     const fb=document.getElementById("quizFb");
     if(b.textContent===q.a){b.classList.add("correct");quizScore++;fb.className="feedback good";fb.textContent="✔ Correct!";}
     else{b.classList.add("incorrect");document.querySelectorAll("#quizBox .quiz-opt").forEach(x=>{if(x.textContent===q.a)x.classList.add("correct")});fb.className="feedback bad";fb.textContent="✘ Correct answer: "+q.a;}
-    quizIdx++;setTimeout(renderQuizQ,1300);
+    quizIdx++;quizTimer=setTimeout(renderQuizQ,1300);
   });
 }
 function finishQuiz(){
-  const pct=Math.round(quizScore/20*100);
+  quizActive=false;
+  const pct=Math.round(quizScore/QUIZ.length*100);
   const passed=pct>=80;
   if(state.bestQuiz===null||quizScore>state.bestQuiz)state.bestQuiz=quizScore;
   addPoints(quizScore*5);
   const box=document.getElementById("quizBox");
   box.innerHTML=`<div class="result-box">
     <div style="font-size:2.6rem">${passed?"🎉":"💪"}</div>
-    <div class="result-score">${quizScore}/20</div>
+    <div class="result-score">${quizScore}/${QUIZ.length}</div>
     <p style="font-weight:700;color:${passed?"var(--green)":"var(--coral)"}">${pct}% — ${passed?"PASSED! Excellent work!":"Keep practising — you need 80% to pass."}</p>
     <p style="color:var(--muted);font-size:.9rem;margin-top:6px">${passed?"Go to 💾 My Progress to see your certificate.":"Review the Learn and Structures tabs, then try again."}</p>
     <button class="big-btn" onclick="startQuiz()">🔁 ${passed?"Try for a perfect score":"Try Again"}</button></div>`;
-  if(passed){earnBadge("champion");confettiBurst();}
+  if(passed){if(state.badges.champion)confettiBurst();else earnBadge("champion");}
   updateHUD();
 }
 
@@ -619,7 +632,7 @@ function renderCertificate(){
     area.innerHTML=`<div class="certificate">
       <h3>🎓 Certificate of Achievement</h3>
       <p>This certifies that</p>
-      <div class="cname">${name}</div>
+      <div class="cname">${esc(name)}</div>
       <p>has successfully completed the</p>
       <p style="font-weight:800;color:var(--teal);font-size:1.05rem">Problem–Solution Vocabulary Builder</p>
       <p>IELTS Academic Writing Task 2 · Score: <b>${state.bestQuiz}/20 (${Math.round(state.bestQuiz/20*100)}%)</b></p>
@@ -640,7 +653,8 @@ function saveProgress(){
   const a=document.createElement("a");
   a.href=URL.createObjectURL(blob);
   a.download=(state.name?state.name.replace(/\s+/g,"_")+"_":"")+"problem_solution_vocab_progress.json";
-  a.click();URL.revokeObjectURL(a.href);
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 }
 function loadProgress(ev){
   const f=ev.target.files[0];if(!f)return;
@@ -649,7 +663,10 @@ function loadProgress(ev){
     try{
       const d=JSON.parse(r.result);
       if(typeof d.points!=="number"||!Array.isArray(d.learned))throw 0;
-      state=Object.assign({points:0,learned:[],bestQuiz:null,badges:{explorer:false,builder:false,practicer:false,champion:false},name:""},d);
+      const base=freshState();
+      state=Object.assign(base,d,{badges:Object.assign(base.badges,d.badges||{})});
+      state.learned=[...new Set(state.learned.filter(i=>Number.isInteger(i)&&i>=0&&i<WORDS.length))];
+      if(typeof state.name!=="string")state.name="";
       document.getElementById("studentName").value=state.name||"";
       updateHUD();
       renderCards(document.querySelector(".cat-pill.active").dataset.cat);
@@ -660,6 +677,7 @@ function loadProgress(ev){
 }
 
 /* ================= INIT ================= */
+document.querySelectorAll(".tab").forEach(x=>x.setAttribute("aria-selected",x.classList.contains("active")));
 renderCards("all");renderStructures();updateHUD();
 </script>
 </body>
